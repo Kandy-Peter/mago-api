@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "target": "es2016",                                  
+    /* Modules */
+    "module": "commonjs",                                
+    "esModuleInterop": true,                             
+    // "preserveSymlinks": true,                         
+    "forceConsistentCasingInFileNames": true,
+
+    /* Type Checking */
+    "strict": true,
+    "skipLibCheck": true,
+    "paths": {
+      "@/*": ["./src/*"],
+      "@services/*": ["./src/services/*"],
+      "@db/*": ["./src/database/*"],
+      "@config/*": ["./src/config/*"],
+      "@models": ["./src/database/models/*"],
+    },
+  }
+}

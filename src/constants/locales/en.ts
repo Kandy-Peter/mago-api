@@ -1,0 +1,15 @@
+export default {
+  welcome: "Welcome to Mago",
+  loggedInSuccessfully: "Logged in successfully",
+  loggedOutSuccessfully: "Logged out successfully",
+  userNotFound: "User not found",
+  createdSuccessfully: "Created successfully",
+  updatedSuccessfully: "Updated successfully",
+  deletedSuccessfully: "Deleted successfully",
+  EmailExist: "Email address already exist",
+  PhoneExist: "Phone number already exist",
+  invalidCredentials: "Invalid credentials",
+  UserExist: "User with this email or name already exist",
+  PasswordMismatch: "Password and password confirmation do not match",
+  ForexBureauExist: "Forex Bureau with this name already exist",
+}
