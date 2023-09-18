@@ -1,4 +1,4 @@
-import luxon from "luxon";
+import * as luxon from "luxon";
 
 module.exports = (sequelize: any, DataTypes: any) => {
   const Token = sequelize.define(

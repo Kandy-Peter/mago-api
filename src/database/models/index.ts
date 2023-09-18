@@ -4,7 +4,7 @@ import { readdirSync } from 'fs';
 import { basename as _basename, join } from 'path';
 
 const env = process.env.NODE_ENV || 'development';
-const config = require(join(__dirname, 'config', 'config.js'))[env];
+const config = require(join(__dirname, '..', 'config', 'config.js'))[env];
 
 const basename = _basename(__filename);
 const db: any = {};

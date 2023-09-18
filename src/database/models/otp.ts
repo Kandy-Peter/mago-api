@@ -28,7 +28,6 @@ module.exports = (sequelize: any, DataTypes: any) => {
       expires_at: {
         type: DataTypes.DATE,
         allowNull: false,
-        defaultValue: DataTypes.literal("CURRENT_TIMESTAMP + INTERVAL '15 minutes'"),
       },
     },
     {

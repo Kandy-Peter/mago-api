@@ -1,5 +1,4 @@
 import bcrypt from "bcryptjs";
-import luxon from "luxon";
 import { nanoid } from "nanoid";
 
 //TODO Add provider for phone_number(this hosuld a be a helper function)
@@ -20,7 +19,11 @@ module.exports = (sequelize: any, DataTypes: any) => {
       },
       email: { type: DataTypes.STRING, allowNull: false, unique: true },
       phone_number: { type: DataTypes.STRING, allowNull: true, unique: true },
-      password: { type: DataTypes.STRING, allowNull: false },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        select: false,
+      },
       is_verified: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
@@ -49,6 +52,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
       public_id: {
         type: DataTypes.STRING,
         allowNull: false,
+        unique: true,
         defaultValue: () => nanoid(10),
       },
       avatar: {
@@ -57,7 +61,6 @@ module.exports = (sequelize: any, DataTypes: any) => {
         defaultValue:
           "https://res.cloudinary.com/dollarmarket/image/upload/v1694705732/mago/1496676191-jd18_84601_arz7ew.png",
       },
-      last_login: { type: DataTypes.DATE, allowNull: true },
       provider: {
         type: DataTypes.ENUM("local", "google"),
         allowNull: false,

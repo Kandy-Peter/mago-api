@@ -2,10 +2,10 @@
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
+  async up(queryInterface, Sequelize) {
     await queryInterface.createTable('otp', {
       id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.BIGINT,
         primaryKey: true,
         autoIncrement: true,
         allowNull: false
@@ -15,7 +15,7 @@ module.exports = {
         allowNull: false
       },
       user_id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.BIGINT,
         allowNull: false,
         references: {
           model: {
@@ -34,7 +34,6 @@ module.exports = {
       expired_at: {
         type: Sequelize.DATE,
         allowNull: false,
-        defaultValue: Sequelize.literal('NOW() + INTERVAL 15 MINUTE')
       },
       created_at: {
         type: Sequelize.DATE,
@@ -46,10 +45,16 @@ module.exports = {
         allowNull: false,
         defaultValue: Sequelize.fn('NOW')
       }
-    })
+    });
+    
+    // Set the default value for expired_at using raw SQL
+    await queryInterface.sequelize.query(`
+      ALTER TABLE otp
+      ALTER COLUMN expired_at SET DEFAULT NOW() + INTERVAL '15 MINUTE';
+    `);
   },
 
-  async down (queryInterface, Sequelize) {
-     await queryInterface.dropTable('otp');
+  async down(queryInterface, Sequelize) {
+    await queryInterface.dropTable('otp');
   }
 };

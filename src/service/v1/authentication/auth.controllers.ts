@@ -5,13 +5,13 @@ import { Op } from "sequelize";
 import userAgents from "express-useragent";
 import locales from "../../../constants/locales";
 
-import User from "../../../database/models";
-import ForexBureau from "../../../database/models";
+import db from "../../../database/models";
 
 import * as STATUS_CODE from "../../../constants/status_code";
-import jsonResponse from "@/helpers/jsonResponse";
+import jsonResponse from "../../../helpers/jsonResponse";
 import Token from "@/helpers/token";
 
+const { User, ForexBureau } = db;
 
 const register = async (req: Request, res: Response) => {
   const { lang = 'en' } = req.headers;
@@ -40,16 +40,6 @@ const register = async (req: Request, res: Response) => {
       });
     }
 
-    const forexBureau = await ForexBureau.findOne({ where: { bureau_name: forex_details.bureau_name } });
-
-    if (forexBureau) {
-      return jsonResponse({
-        res,
-        status: STATUS_CODE.BAD_REQUEST,
-        message: locales('ForexBureauExist', lang as string),
-      });
-    }
-
     const newUser = await User.create({
       email,
       password,
@@ -59,6 +49,16 @@ const register = async (req: Request, res: Response) => {
     });
 
     if(account_type === "forex_bureau"){
+      const forexBureau = await ForexBureau.findOne({ where: { bureau_name: forex_details.bureau_name } });
+
+      if (forexBureau) {
+        return jsonResponse({
+          res,
+          status: STATUS_CODE.BAD_REQUEST,
+          message: locales('ForexBureauExist', lang as string),
+        });
+      }
+
       await ForexBureau.create({
         user_id: newUser.id,
         bureau_name: forex_details.bureau_name,
