@@ -1,11 +1,12 @@
-import mail, { MailDataRequired } from '@sendgrid/mail';
+import sgMail, { MailDataRequired } from '@sendgrid/mail';
 import 'dotenv/config';
+import logger from './logger';
 
 const { SENDGRID_API_KEY, NODE_ENV } = process.env;
 
 const isTest = NODE_ENV === 'test';
 
-mail.setApiKey(SENDGRID_API_KEY as string);
+sgMail.setApiKey(SENDGRID_API_KEY as string);
 
 /**
  * @author Kandy
@@ -30,7 +31,11 @@ const sendMail = async (msg: MailDataRequired) => {
     return Promise.resolve();
   }
 
-  return mail.send(defaultMsg);
+  return sgMail.send(defaultMsg).then(() => {
+    console.log('Email sent');
+  }).catch((error) => {
+    logger.error(error);
+  });
 };
 
 export default sendMail;

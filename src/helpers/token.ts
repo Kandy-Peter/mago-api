@@ -1,8 +1,8 @@
-import { stat } from 'fs';
-import jwt from 'jsonwebtoken';
-import db from '../database/models';
-import { nanoid } from 'nanoid';
-import { Details } from 'express-useragent';
+import { stat } from "fs";
+import jwt from "jsonwebtoken";
+import db from "../database/models";
+import { Details } from "express-useragent";
+import moment from "moment";
 
 const { Token: TokenModel, OTP } = db;
 
@@ -40,16 +40,22 @@ class Token {
         isMobile: userAgent.isMobile,
       };
 
-      if (user.account_type === 'forex_bureau') {
+      if (user.account_type === "forex_bureau") {
         tokenPayload.isForexVerified = user.is_forex_verified;
         tokenPayload.isForexAccountActive = user.is_forex_account_active;
       }
 
-      const refreshToken = jwt.sign(tokenPayload, refreshSecretKey, { expiresIn: '30d' });
+      const refreshToken = jwt.sign(tokenPayload, refreshSecretKey, {
+        expiresIn: "30d",
+      });
 
-      const accessToken = jwt.sign(tokenPayload, accesSecretKey, { expiresIn: '1d' });
+      const accessToken = jwt.sign(tokenPayload, accesSecretKey, {
+        expiresIn: "1d",
+      });
 
-      const userToken = await TokenModel.findOne({ where: { user_id: user.id } });
+      const userToken = await TokenModel.findOne({
+        where: { user_id: user.id },
+      });
 
       if (userToken) {
         await userToken.update({ refresh_token: refreshToken });
@@ -64,14 +70,19 @@ class Token {
 
   static async verifyRefreshToken(refreshToken: string) {
     try {
-      const decoded = jwt.verify(refreshToken, refreshSecretKey) as TokenPayload;
+      const decoded = jwt.verify(
+        refreshToken,
+        refreshSecretKey
+      ) as TokenPayload;
 
       if (!decoded) {
-        return Promise.reject(new Error('Invalid refresh token'));
+        return Promise.reject(new Error("Invalid refresh token"));
       }
-      const userToken = await TokenModel.findOne({ where: { user_id: decoded.id, token: refreshToken } });
+      const userToken = await TokenModel.findOne({
+        where: { user_id: decoded.id, token: refreshToken },
+      });
       if (!userToken) {
-        return Promise.reject(new Error('Invalid refresh token'));
+        return Promise.reject(new Error("Invalid refresh token"));
       }
       return Promise.resolve(decoded);
     } catch (error) {
@@ -79,10 +90,14 @@ class Token {
     }
   }
 
-  static async generateOTP(user: any) {
+  static async generateOTP(id: string) {
     try {
-      const otp = nanoid(5);
-      const newOTP = await OTP.create({ user_id: user.id, otp });
+      const otp = Math.floor(10000 + Math.random() * 90000);
+      const newOTP = await OTP.create({
+        user_id: id,
+        otp,
+        expires_at: moment().add(15, "minutes").toDate(),
+      });
       return Promise.resolve(newOTP);
     } catch (error) {
       throw Promise.reject(error);

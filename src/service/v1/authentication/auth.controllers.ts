@@ -11,9 +11,9 @@ import db from "../../../database/models";
 import * as STATUS_CODE from "../../../constants/status_code";
 import jsonResponse from "../../../helpers/jsonResponse";
 import Token, {TokenPayload} from "../../../helpers/token";
+import sendEmail from "../../../helpers/sendEmail";
 
-
-const { User, ForexBureau, Token: TokenModel } = db;
+const { User, ForexBureau, Token: TokenModel, OTP } = db;
 const accesSecretKey = process.env.ACCESS_SECRET_KEY as string;
 
 const isProduction = process.env.NODE_ENV === "production" ? true : false;
@@ -85,6 +85,19 @@ const register = async (req: Request, res: Response) => {
 
     delete newUser.password;
 
+    const opt = await Token.generateOTP(newUser.id);
+
+    if (opt) {
+      await sendEmail({
+        email: newUser.email,
+        subject: "Mago - Verify your email",
+        title: locales('welcome', lang as string),
+        body: locales('verificationOtpMessage', lang as string),
+        code: opt,
+        lang: lang as string,
+      });
+    }
+
     return jsonResponse({
       res,
       status: STATUS_CODE.CREATED,
@@ -92,7 +105,7 @@ const register = async (req: Request, res: Response) => {
       data: newUser,
     });
   } catch (error: any) {
-    await transaction.rollback();
+    // await transaction.rollback();
     return jsonResponse({
       res,
       status: STATUS_CODE.SERVER_ERROR,

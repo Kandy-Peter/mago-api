@@ -17,4 +17,5 @@ export default {
   ForexBureauExist: "Forex Bureau avec ce nom existe déjà",
   forbiddenAccess: "Accès interdit",
   verificationCodeSent: "Code de vérification envoyé avec succès",
+  verificationOtpMessage: "Afin de vérifier votre adresse e-mail, veuillez saisir le code de vérification ci-dessous",
 }

@@ -1,4 +1,5 @@
 'use strict';
+const moment = require('moment');
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
@@ -31,9 +32,10 @@ module.exports = {
         allowNull: false,
         defaultValue: false
       },
-      expired_at: {
+      expires_at: {
         type: Sequelize.DATE,
         allowNull: false,
+        defaultValue: moment().add(15, 'minutes').toDate()
       },
       created_at: {
         type: Sequelize.DATE,
@@ -46,12 +48,6 @@ module.exports = {
         defaultValue: Sequelize.fn('NOW')
       }
     });
-    
-    // Set the default value for expired_at using raw SQL
-    await queryInterface.sequelize.query(`
-      ALTER TABLE otp
-      ALTER COLUMN expired_at SET DEFAULT NOW() + INTERVAL '15 MINUTE';
-    `);
   },
 
   async down(queryInterface, Sequelize) {

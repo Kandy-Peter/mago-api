@@ -1,4 +1,5 @@
 import { nanoid } from "nanoid";
+import moment from "moment";
 
 module.exports = (sequelize: any, DataTypes: any) => {
   const OTP = sequelize.define(
@@ -30,6 +31,7 @@ module.exports = (sequelize: any, DataTypes: any) => {
       expires_at: {
         type: DataTypes.DATE,
         allowNull: false,
+        defaultValue: moment().add(15, "minutes").toDate(),
       },
     },
     {
