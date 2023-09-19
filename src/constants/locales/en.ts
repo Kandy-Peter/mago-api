@@ -9,7 +9,8 @@ export default {
   EmailExist: "Email address already exist",
   PhoneExist: "Phone number already exist",
   invalidCredentials: "Invalid credentials",
-  UserExist: "User with this email or name already exist",
+  UserExist: "User with this email already exist",
+  NameExist: "User with this name already exist",
   PasswordMismatch: "Password and password confirmation do not match",
   ForexBureauExist: "Forex Bureau with this name already exist",
 }

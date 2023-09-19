@@ -5,10 +5,10 @@ module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.createTable('tokens', {
       id: {
-        type: Sequelize.INTEGER,
+        allowNull: false,
         primaryKey: true,
-        autoIncrement: true,
-        allowNull: false
+        type: Sequelize.STRING,
+        defaultValue: () => nanoid(15),
       },
       token: Sequelize.TEXT,
       os: Sequelize.STRING,
@@ -18,7 +18,7 @@ module.exports = {
         allowNull: false
       },
       user_id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
         allowNull: false,
         references: {
           model: 'users',

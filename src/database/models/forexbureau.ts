@@ -1,15 +1,17 @@
+import { nanoid } from "nanoid";
+
 module.exports = (sequelize: any, DataTypes: any) => {
   const ForexBureau = sequelize.define(
     "ForexBureau",
     {
       id: {
+        type: DataTypes.STRING,
         allowNull: false,
         primaryKey: true,
-        type: DataTypes.BIGINT,
-        autoIncrement: true,
+        defaultValue: () => nanoid(15),
       },
       user_id: {
-        type: DataTypes.BIGINT,
+        type: DataTypes.STRING,
         allowNull: false,
         references: {
           model: "User",
@@ -17,6 +19,11 @@ module.exports = (sequelize: any, DataTypes: any) => {
         },
       },
       country: { type: DataTypes.STRING, allowNull: false },
+      preferred_currencies: {
+        type: DataTypes.ARRAY(DataTypes.STRING),
+        allowNull: false,
+        defaultValue: [],
+      },
       bureau_name: {
         type: DataTypes.STRING,
         allowNull: false,

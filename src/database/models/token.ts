@@ -1,19 +1,20 @@
 import * as luxon from "luxon";
+import { nanoid } from "nanoid";
 
 module.exports = (sequelize: any, DataTypes: any) => {
   const Token = sequelize.define(
     "Token",
     {
       id: {
+        type: DataTypes.STRING,
         allowNull: false,
         primaryKey: true,
-        type: DataTypes.BIGINT,
-        autoIncrement: true,
+        defaultValue: () => nanoid(15),
       },
       token: DataTypes.TEXT,
       os: DataTypes.STRING,
       user_id: {
-        type: DataTypes.BIGINT,
+        type: DataTypes.STRING,
         allowNull: false,
         references: {
           model: "User",

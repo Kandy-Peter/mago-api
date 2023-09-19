@@ -6,12 +6,12 @@ module.exports = {
     await queryInterface.createTable('forex_bureaus', {
       id: {
         allowNull: false,
-        autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.BIGINT,
+        type: Sequelize.STRING,
+        defaultValue: () => nanoid(15),
       },
       user_id: {
-        type: Sequelize.BIGINT,
+        type: Sequelize.STRING,
         allowNull: false,
         references: {
           model: 'users',
@@ -33,6 +33,14 @@ module.exports = {
         allowNull: true,
         unique: true,
       },
+      country: {
+        type: Sequelize.STRING,
+      },
+      preferred_currencies: {
+        type: Sequelize.ARRAY(Sequelize.STRING),
+        allowNull: false,
+        defaultValue: [],
+      },
       forex_avatar: {
         type: Sequelize.STRING,
         allowNull: true,
@@ -53,6 +61,16 @@ module.exports = {
         allowNull: false,
         defaultValue: [],
       },
+      created_at: {
+        allowNull: false,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.fn('NOW'),
+      },
+      updated_at: {
+        allowNull: false,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.fn('NOW'),
+      }
     });
   },
 

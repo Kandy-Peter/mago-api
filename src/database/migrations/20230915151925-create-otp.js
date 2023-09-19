@@ -5,17 +5,17 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('otp', {
       id: {
-        type: Sequelize.BIGINT,
+        allowNull: false,
         primaryKey: true,
-        autoIncrement: true,
-        allowNull: false
+        type: Sequelize.STRING,
+        defaultValue: () => nanoid(15),
       },
       otp: {
         type: Sequelize.STRING,
         allowNull: false
       },
       user_id: {
-        type: Sequelize.BIGINT,
+        type: Sequelize.STRING,
         allowNull: false,
         references: {
           model: {

@@ -18,6 +18,7 @@ export const registerValidation: RequestHandler = celebrate({
       .keys({
         bureau_name: Joi.string().required().min(3),
         bureau_phone_number: Joi.string().required(),
+        bureau_email: Joi.string().email().required(),
         country: Joi.string()
           .required()
           .valid("kenya", "rwanda", "uganda", "congo"),

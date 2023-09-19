@@ -1,7 +1,7 @@
 import { Response, Request } from "express";
 import luxon from "luxon";
 import { nanoid } from "nanoid";
-import { Op } from "sequelize";
+import { Op, Transaction } from "sequelize";
 import userAgents from "express-useragent";
 import locales from "../../../constants/locales";
 
@@ -15,16 +15,19 @@ const { User, ForexBureau } = db;
 
 const register = async (req: Request, res: Response) => {
   const { lang = 'en' } = req.headers;
-  const { email, password, password_confirmation, full_name, account_type, terms_accepted,  forex_details} = req.body;
+  const { email, password, full_name, account_type, terms_accepted,  forex_details} = req.body;
+  const transaction: Transaction = await db.sequelize.transaction();
 
   try {
-    const user = await User.findOne({
+    const existingUser = await User.findOne({
       where: {
         [Op.or]: [{ email }, { full_name }],
       },
+      transaction,
     });
 
-    if (user) {
+    if (existingUser && existingUser.email === email) {
+      transaction.rollback();
       return jsonResponse({
         res,
         status: STATUS_CODE.BAD_REQUEST,
@@ -32,11 +35,12 @@ const register = async (req: Request, res: Response) => {
       });
     }
 
-    if (password !== password_confirmation) {
+    if (existingUser && existingUser.full_name === full_name) {
+      transaction.rollback();
       return jsonResponse({
         res,
         status: STATUS_CODE.BAD_REQUEST,
-        message: locales('PasswordMismatch', lang as string),
+        message: locales('NameExist', lang as string),
       });
     }
 
@@ -46,12 +50,14 @@ const register = async (req: Request, res: Response) => {
       full_name,
       account_type,
       terms_accepted,
+      is_forex_owner: account_type === "forex_bureau" ? true : false,
     });
 
     if(account_type === "forex_bureau"){
-      const forexBureau = await ForexBureau.findOne({ where: { bureau_name: forex_details.bureau_name } });
+      const forexBureau = await ForexBureau.findOne({ where: { bureau_name: forex_details.bureau_name }, transaction });
 
       if (forexBureau) {
+        await transaction.rollback();
         return jsonResponse({
           res,
           status: STATUS_CODE.BAD_REQUEST,
@@ -65,8 +71,14 @@ const register = async (req: Request, res: Response) => {
         bureau_email: forex_details.bureau_email,
         bureau_phone_number: forex_details.bureau_phone_number,
         country: forex_details.country,
-      });
+      },
+      {transaction}
+      );
     };
+
+    await transaction.commit();
+
+    delete newUser.password;
 
     return jsonResponse({
       res,
@@ -75,6 +87,7 @@ const register = async (req: Request, res: Response) => {
       data: newUser,
     });
   } catch (error: any) {
+    await transaction.rollback();
     return jsonResponse({
       res,
       status: STATUS_CODE.SERVER_ERROR,

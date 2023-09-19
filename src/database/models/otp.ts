@@ -1,15 +1,17 @@
+import { nanoid } from "nanoid";
+
 module.exports = (sequelize: any, DataTypes: any) => {
   const OTP = sequelize.define(
     "OTP",
     {
       id: {
+        type: DataTypes.STRING,
         allowNull: false,
         primaryKey: true,
-        type: DataTypes.BIGINT,
-        autoIncrement: true,
+        defaultValue: () => nanoid(15),
       },
       user_id: {
-        type: DataTypes.BIGINT,
+        type: DataTypes.STRING,
         allowNull: false,
         references: {
           model: "User",

@@ -8,10 +8,10 @@ module.exports = (sequelize: any, DataTypes: any) => {
     "User",
     {
       id: {
+        type: DataTypes.STRING,
         allowNull: false,
         primaryKey: true,
-        type: DataTypes.BIGINT,
-        autoIncrement: true,
+        defaultValue: () => nanoid(15),
       },
       full_name: {
         type: DataTypes.STRING,
@@ -22,7 +22,6 @@ module.exports = (sequelize: any, DataTypes: any) => {
       password: {
         type: DataTypes.STRING,
         allowNull: false,
-        select: false,
       },
       is_verified: {
         type: DataTypes.BOOLEAN,
@@ -33,6 +32,11 @@ module.exports = (sequelize: any, DataTypes: any) => {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: true,
+      },
+      is_forex_owner: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
       },
       is_account_active: {
         type: DataTypes.BOOLEAN,
@@ -73,6 +77,9 @@ module.exports = (sequelize: any, DataTypes: any) => {
       timestamps: true,
       createdAt: "created_at",
       updatedAt: "updated_at",
+      defaultScope: {
+        attributes: { exclude: ["password"] },
+      },
       hooks: {
         beforeCreate: async (user: any) => {
           const salt = await bcrypt.genSalt(10);

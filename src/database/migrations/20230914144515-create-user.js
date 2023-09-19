@@ -6,10 +6,10 @@ module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.createTable('users', {
       id: {
+        type: Sequelize.STRING,
         allowNull: false,
-        autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.BIGINT,
+        defaultValue: () => nanoid(15),
       },
       full_name: {
         type: Sequelize.STRING(50),
@@ -28,6 +28,11 @@ module.exports = {
       password: {
         type: Sequelize.STRING,
         allowNull: false,
+      },
+      is_forex_owner: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
       },
       avatar: {
         type: Sequelize.STRING,
