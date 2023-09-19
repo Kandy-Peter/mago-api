@@ -70,6 +70,10 @@ module.exports = (sequelize: any, DataTypes: any) => {
         allowNull: false,
         defaultValue: "local",
       },
+      last_login: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
     },
     {
       tableName: "users",

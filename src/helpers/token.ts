@@ -1,37 +1,43 @@
 import { stat } from 'fs';
 import jwt from 'jsonwebtoken';
-import TokenModel from '../../../database/models';
-import OTP from '../../../database/models';
+import db from '../database/models';
 import { nanoid } from 'nanoid';
+import { Details } from 'express-useragent';
+
+const { Token: TokenModel, OTP } = db;
 
 export const accesSecretKey = process.env.ACCESS_SECRET_KEY as string;
 export const refreshSecretKey = process.env.REFRESH_SECRET_KEY as string;
 
-interface TokenPayload {
+export interface TokenPayload {
   id: string;
   email: string;
   isVerified: boolean;
-  isActive: boolean;
+  name: string;
   accountType: string;
-  publicId: string;
   country: string;
-  isSubscribed: boolean;
   isForexVerified?: boolean;
   isForexAccountActive?: boolean;
+  os?: string;
+  browser?: string;
+  device?: string;
+  isMobile?: boolean;
 }
 
 class Token {
-  static async generateToken(user: any, expiresIn: string = '7d') {
+  static async generateToken(user: any, userAgent: Details) {
     try {
       const tokenPayload: TokenPayload = {
         id: user.id,
         email: user.email,
+        name: user.full_name,
         isVerified: user.is_verified,
-        isActive: user.is_active,
         accountType: user.account_type,
-        publicId: user.public_id,
         country: user.country,
-        isSubscribed: user.isSubscribed
+        os: userAgent.os,
+        browser: userAgent.browser,
+        device: userAgent.source,
+        isMobile: userAgent.isMobile,
       };
 
       if (user.account_type === 'forex_bureau') {
@@ -41,7 +47,7 @@ class Token {
 
       const refreshToken = jwt.sign(tokenPayload, refreshSecretKey, { expiresIn: '30d' });
 
-      const accessToken = jwt.sign(tokenPayload, accesSecretKey, { expiresIn: '1h' });
+      const accessToken = jwt.sign(tokenPayload, accesSecretKey, { expiresIn: '1d' });
 
       const userToken = await TokenModel.findOne({ where: { user_id: user.id } });
 
@@ -56,12 +62,16 @@ class Token {
     }
   }
 
-  static async verifyToken(refreshToken: string) {
+  static async verifyRefreshToken(refreshToken: string) {
     try {
       const decoded = jwt.verify(refreshToken, refreshSecretKey) as TokenPayload;
+
+      if (!decoded) {
+        return Promise.reject(new Error('Invalid refresh token'));
+      }
       const userToken = await TokenModel.findOne({ where: { user_id: decoded.id, token: refreshToken } });
       if (!userToken) {
-        throw new Error('Invalid token');
+        return Promise.reject(new Error('Invalid refresh token'));
       }
       return Promise.resolve(decoded);
     } catch (error) {

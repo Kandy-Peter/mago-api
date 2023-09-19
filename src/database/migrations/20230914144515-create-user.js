@@ -83,6 +83,10 @@ module.exports = {
         allowNull: true,
         defaultValue: false,
       },
+      last_login: {
+        type: Sequelize.DATE,
+        allowNull: true,
+      },
     });
   },
 

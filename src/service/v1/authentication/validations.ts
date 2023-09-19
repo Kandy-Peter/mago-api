@@ -30,3 +30,17 @@ export const registerValidation: RequestHandler = celebrate({
       }),
   }),
 });
+
+export const loginValidation: RequestHandler = celebrate({
+  [Segments.BODY]: Joi.object().keys({
+    email: Joi.string().email().required(),
+    password: Joi.string().required(),
+  }),
+});
+
+export const refreshTokenValidation: RequestHandler = celebrate({
+  [Segments.BODY]: Joi.object().keys({
+    refresh_token: Joi.string().required().min(50),
+  }),
+});
+

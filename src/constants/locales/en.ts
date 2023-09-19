@@ -8,9 +8,11 @@ export default {
   deletedSuccessfully: "Deleted successfully",
   EmailExist: "Email address already exist",
   PhoneExist: "Phone number already exist",
-  invalidCredentials: "Invalid credentials",
+  InvalidCredentials: "Invalid credentials",
   UserExist: "User with this email already exist",
   NameExist: "User with this name already exist",
   PasswordMismatch: "Password and password confirmation do not match",
   ForexBureauExist: "Forex Bureau with this name already exist",
+  forbiddenAccess: "Forbidden access",
+  verificationCodeSent: "Verification code sent successfully",
 }

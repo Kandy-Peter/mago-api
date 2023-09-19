@@ -16,7 +16,6 @@
       "@db/*": ["./src/database/*"],
       "@config/*": ["./src/config/*"],
       "@models": ["./src/database/models/*"],
-      "@helpers/*": ["./src/helpers/*"],
     },
   }
 }
