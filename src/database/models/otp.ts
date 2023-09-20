@@ -28,6 +28,11 @@ module.exports = (sequelize: any, DataTypes: any) => {
         allowNull: false,
         defaultValue: false,
       },
+      subject: {
+        type: DataTypes.ENUM("verify_email", "reset_password", "verify_phone_number"),
+        allowNull: false,
+        defaultValue: "verify_email",
+      },
       expires_at: {
         type: DataTypes.DATE,
         allowNull: false,

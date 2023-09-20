@@ -44,3 +44,11 @@ export const refreshTokenValidation: RequestHandler = celebrate({
   }),
 });
 
+export const verifyAccountOTPValidation: RequestHandler = celebrate({
+  [Segments.BODY]: Joi.object().keys({
+    otp: Joi.string().required().min(5).max(5),
+  }),
+  [Segments.PARAMS]: Joi.object().keys({
+    userId: Joi.string().required().min(15).max(15),
+  }),
+});

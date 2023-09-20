@@ -1,5 +1,5 @@
 import { Response, Request } from "express";
-import luxon from "luxon";
+import moment from "moment";
 import jwt from "jsonwebtoken";
 import { Op, Transaction } from "sequelize";
 import userAgents from "express-useragent";
@@ -10,7 +10,7 @@ import db from "../../../database/models";
 
 import * as STATUS_CODE from "../../../constants/status_code";
 import jsonResponse from "../../../helpers/jsonResponse";
-import Token, {TokenPayload} from "../../../helpers/token";
+import AuthHelper, {TokenPayload} from "../../../helpers/authHelper";
 import sendEmail from "../../../helpers/sendEmail";
 
 const { User, ForexBureau, Token: TokenModel, OTP } = db;
@@ -85,12 +85,12 @@ const register = async (req: Request, res: Response) => {
 
     delete newUser.password;
 
-    const opt = await Token.generateOTP(newUser.id);
+    const opt = await AuthHelper.generateOTP(newUser.id);
 
     if (opt) {
       await sendEmail({
         email: newUser.email,
-        subject: "Mago - Verify your email",
+        subject: "Mago verify",
         title: locales('welcome', lang as string),
         body: locales('verificationOtpMessage', lang as string),
         code: opt,
@@ -105,7 +105,7 @@ const register = async (req: Request, res: Response) => {
       data: newUser,
     });
   } catch (error: any) {
-    // await transaction.rollback();
+    await transaction.rollback();
     return jsonResponse({
       res,
       status: STATUS_CODE.SERVER_ERROR,
@@ -117,22 +117,31 @@ const register = async (req: Request, res: Response) => {
 const login = async (req: Request, res: Response) => {
   const { lang = 'en' } = req.headers;
   const { email, password } = req.body;
+  console.log(req.body)
 
   try {
     let user = await User.findOne({ where: { email },
       attributes: { include: ['password'] }
     });
   
+    
+    if (!user) {
+      return jsonResponse({
+        res,
+        status: STATUS_CODE.UNAUTHORIZED,
+        message: locales('userNotFound', lang as string),
+      });
+    }
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
-    if (!user || !isPasswordValid) {
+    if (!isPasswordValid) {
       return jsonResponse({
         res,
         status: STATUS_CODE.UNAUTHORIZED,
         message: locales('InvalidCredentials', lang as string),
       });
     }
-
+    
     if (!user.is_account_active) {
       return jsonResponse({
         res,
@@ -159,10 +168,10 @@ const login = async (req: Request, res: Response) => {
     const userAgent = userAgents.parse(req.headers["user-agent"] || "");
 
     if (user.last_login) {
-      user.last_login = luxon.DateTime.utc().toJSDate();
+      user.last_login = moment().toDate();
       await user.save();
     }
-    const token = await Token.generateToken(userData, userAgent);
+    const token = await AuthHelper.generateToken(userData, userAgent);
 
     return jsonResponse({
       res,
@@ -184,7 +193,7 @@ const logout = async (req: Request, res: Response) => {
   const { lang = 'en' } = req.headers;
   const refreshToken = req.headers.authorization?.split("Bearer ")[1];
 
-  Token.verifyRefreshToken(refreshToken as string).then(async (decoded: TokenPayload) => {
+  AuthHelper.verifyRefreshToken(refreshToken as string).then(async (decoded: TokenPayload) => {
     const userToken = await TokenModel.findOne({ where: { user_id: decoded.id, token: refreshToken } });
 
     if (!userToken) {
@@ -211,14 +220,13 @@ const logout = async (req: Request, res: Response) => {
   });
 };
 
-
 const refreshToken = async (req: Request, res: Response) => {
   const { lang = 'en' } = req.headers;
   const refresh_token = req.body.refresh_token;
 
   const userAgent = userAgents.parse(req.headers["user-agent"] || "");
 
-  Token.verifyRefreshToken(refresh_token).then(async (decoded: TokenPayload) => {
+  AuthHelper.verifyRefreshToken(refresh_token).then(async (decoded: TokenPayload) => {
     const payload: TokenPayload = {
       id: decoded.id,
       email: decoded.email,
@@ -237,7 +245,7 @@ const refreshToken = async (req: Request, res: Response) => {
       payload.isForexAccountActive = decoded.isForexAccountActive;
     }
 
-    const accessToken = await jwt.sign(payload, accesSecretKey, { expiresIn: "1d" });
+    const accessToken = jwt.sign(payload, accesSecretKey, { expiresIn: "1d" });
 
     return jsonResponse({
       res,
@@ -255,9 +263,51 @@ const refreshToken = async (req: Request, res: Response) => {
   });
 };
 
+const verifyAccountOTP = async (req: Request, res: Response) => {
+  const { lang = 'en' } = req.headers;
+  const { otp } = req.body;
+  const { userId } = req.params;
+
+  try {
+    const otpData = await OTP.findOne({ where: { user_id: userId, otp, subject: "verify_email" } });
+
+    if (!otpData) {
+      return jsonResponse({
+        res,
+        status: STATUS_CODE.UNAUTHORIZED,
+        message: locales('InvalidCredentials', lang as string),
+      });
+    }
+
+    if(otpData.is_used || otpData.expires_at < moment().toDate()){
+      return jsonResponse({
+        res,
+        status: STATUS_CODE.UNAUTHORIZED,
+        message: locales('OTPExpired', lang as string),
+      });
+    }
+
+    await otpData.update({ is_used: true, expires_at: moment().toDate() });
+    await User.update({ is_verified: true }, { where: { id: userId } });
+
+    return jsonResponse({
+      res,
+      status: STATUS_CODE.OK,
+      message: locales('accountEmailVerified', lang as string),
+    });
+  } catch (error: any) {
+    return jsonResponse({
+      res,
+      status: STATUS_CODE.SERVER_ERROR,
+      message: error.message,
+    });
+  }
+};
+
 export default {
   register,
   login,
   refreshToken,
   logout,
+  verifyAccountOTP,
 }

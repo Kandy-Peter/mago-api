@@ -3,6 +3,7 @@ import {
   registerValidation,
   loginValidation,
   refreshTokenValidation,
+  verifyAccountOTPValidation
 } from "./validations";
 
 import authControllers from "./auth.controllers";
@@ -13,5 +14,6 @@ router.post("/register", registerValidation, authControllers.register);
 router.post("/login", loginValidation, authControllers.login);
 router.delete("/logout", authControllers.logout);
 router.post("/refresh-token", refreshTokenValidation, authControllers.refreshToken);
+router.post("/verify-email/:userId", verifyAccountOTPValidation, authControllers.verifyAccountOTP);
 
 export default router;

@@ -8,10 +8,10 @@ const isTest = NODE_ENV === 'test';
 
 sgMail.setApiKey(SENDGRID_API_KEY as string);
 
-/**
- * @author Kandy
- * @param {Object} msg
- */
+// /**
+//  * @author Kandy
+//  * @param {Object} msg
+//  */
 
 const sendMail = async (msg: MailDataRequired) => {
   const defaultMsg = {
@@ -20,7 +20,7 @@ const sendMail = async (msg: MailDataRequired) => {
     bcc: msg.bcc || undefined,
     cc: msg.cc || undefined,
     subject: msg.subject || 'Mago',
-    text: msg.text || '<strong>Mago Support team</strong>',
+    html: msg.html || '<p>Test</p>',
   } as MailDataRequired;
 
   if (msg.attachments) {
@@ -32,7 +32,7 @@ const sendMail = async (msg: MailDataRequired) => {
   }
 
   return sgMail.send(defaultMsg).then(() => {
-    console.log('Email sent');
+    logger.info('Email sent');
   }).catch((error) => {
     logger.error(error);
   });

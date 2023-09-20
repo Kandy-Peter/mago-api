@@ -16,4 +16,6 @@ export default {
   forbiddenAccess: "Forbidden access",
   verificationCodeSent: "Verification code sent successfully",
   verificationOtpMessage: "In order to verify your email address, please enter the verification code below",
+  accountEmailVerified: "Your account has been successfully verified",
+  OTPExpired: "Your verification code has expired",
 }

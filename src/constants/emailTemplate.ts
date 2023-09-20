@@ -17,7 +17,6 @@ const linkButton = (link: string, textLink: string) => {
 const template = ({
   title,
   text,
-  lang = "en",
   code,
 }: IEmail) => {
   return `
@@ -26,7 +25,6 @@ const template = ({
         <img src="${LOGO}" alt="Mago Logo" style="width: 100px; height: 100px; object-fit: contain;"/>
       </a>
       <br />
-      <h1 style="font-size: 24px; margin: 0; padding: 0; font-family: 'AudioWide', cursive;">mago</h1>
       <br />
       <h3 style="font-size: 18px; margin: 0; padding: 0; font-family: 'lato', sans-serif;">${title}</h3>
       <br />
@@ -34,7 +32,7 @@ const template = ({
         <p style="font-size: 16px; margin: 0; padding: 0;">${text}</p>
         ${
           code
-            ? `<p style="text-align: center; font-size: 16px; margin: 0; padding: 0; background-color: #D62645; color: #fff; padding: 10px 20px; border-radius: 5px; text-decoration: none;">${code}</p>`
+            ? `<p style="text-align: center; font-size: 24px; margin: 0; padding: 0; background-color: #e3e3e3; color: #000; padding: 10px 20px; border-radius: 2px; text-decoration: none;">${code}</p>`
             : ""
         }
       </div>

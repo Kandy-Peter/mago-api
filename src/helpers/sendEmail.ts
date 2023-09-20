@@ -1,4 +1,3 @@
-import { MailDataRequired } from "@sendgrid/mail";
 import sendGrid from "../config/sendgrid";
 import emailMessage from "../constants/emailTemplate";
 
@@ -31,6 +30,8 @@ const sendEmail = async ({
         lang,
       }),
     };
+
+    console.log(msg)
 
     return sendGrid(msg);
   } catch (error) {

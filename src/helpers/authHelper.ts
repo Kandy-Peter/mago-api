@@ -24,7 +24,7 @@ export interface TokenPayload {
   isMobile?: boolean;
 }
 
-class Token {
+class AuthHelper {
   static async generateToken(user: any, userAgent: Details) {
     try {
       const tokenPayload: TokenPayload = {
@@ -98,11 +98,11 @@ class Token {
         otp,
         expires_at: moment().add(15, "minutes").toDate(),
       });
-      return Promise.resolve(newOTP);
+      return newOTP.otp;
     } catch (error) {
       throw Promise.reject(error);
     }
   }
 }
 
-export default Token;
+export default AuthHelper;

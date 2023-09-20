@@ -32,6 +32,11 @@ module.exports = {
         allowNull: false,
         defaultValue: false
       },
+      subject: {
+        type: Sequelize.ENUM('verify_email', 'reset_password', 'verify_phone_number'),
+        allowNull: false,
+        defaultValue: 'verify_email'
+      },
       expires_at: {
         type: Sequelize.DATE,
         allowNull: false,
