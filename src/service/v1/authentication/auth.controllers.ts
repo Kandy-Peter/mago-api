@@ -85,14 +85,14 @@ const register = async (req: Request, res: Response) => {
 
     delete newUser.password;
 
-    const opt = await AuthHelper.generateOTP(newUser.id);
+    const opt = await AuthHelper.generateOTP(newUser.id, "verify_email");
 
     if (opt) {
       await sendEmail({
         email: newUser.email,
         subject: "Mago verify",
         title: locales('welcome', lang as string),
-        body: locales('verificationOtpMessage', lang as string),
+        body: locales('emailOtpVerification', lang as string),
         code: opt,
         lang: lang as string,
       });
@@ -304,10 +304,135 @@ const verifyAccountOTP = async (req: Request, res: Response) => {
   }
 };
 
+const forgotPassword = async (req: Request, res: Response) => {
+  const { lang = 'en' } = req.headers;
+  const { email, phone_number } = req.body;
+
+  try {
+    if (!email && !phone_number) {
+      return jsonResponse({
+        res,
+        status: STATUS_CODE.BAD_REQUEST,
+        message: "Email or phone number is required",
+      });
+    }
+
+    const user = await User.findOne({
+      where: { email: email || null, phone_number: phone_number || null },
+    });
+
+    if (!user) {
+      return jsonResponse({
+        res,
+        status: STATUS_CODE.UNAUTHORIZED,
+        message: locales('userNotFound', lang as string),
+      });
+    }
+
+    const otp = await AuthHelper.generateOTP(user.id, "reset_password");
+
+    if (otp) {
+      if (email) {
+        await sendEmail({
+          email: user.email,
+          subject: "Mago reset password",
+          title: locales('welcome', lang as string),
+          body: locales('emailResetPassword', lang as string),
+          code: otp,
+          lang: lang as string,
+        });
+      } else if (phone_number) {
+        // send sms
+      } else {
+        return jsonResponse({
+          res,
+          status: STATUS_CODE.BAD_REQUEST,
+          message: "Email or phone number is required",
+        });
+      }
+    }
+
+    return jsonResponse({
+      res,
+      status: STATUS_CODE.OK,
+      message: locales('verificationCodeSent', lang as string),
+    });
+  } catch (error: any) {
+    return jsonResponse({
+      res,
+      status: STATUS_CODE.SERVER_ERROR,
+      message: error.message,
+    });
+  }
+}
+
+const resetPassword = async (req: Request, res: Response) => {
+  const { lang = 'en' } = req.headers;
+  const { otp, password, confirm_password } = req.body;
+
+  try {
+    const otpData = await OTP.findOne({ where: { otp, subject: "reset_password" } });
+
+    if (!otpData) {
+      return jsonResponse({
+        res,
+        status: STATUS_CODE.UNAUTHORIZED,
+        message: locales('InvalidCredentials', lang as string),
+      });
+    }
+
+    if(otpData.is_used || otpData.expires_at < moment().toDate()){
+      return jsonResponse({
+        res,
+        status: STATUS_CODE.UNAUTHORIZED,
+        message: locales('OTPExpired', lang as string),
+      });
+    }
+
+    if (password !== confirm_password) {
+      return jsonResponse({
+        res,
+        status: STATUS_CODE.BAD_REQUEST,
+        message: locales('PasswordMismatch', lang as string),
+      });
+    }
+
+    const user = await User.findOne({ where: { id: otpData.user_id }, attributes: { include: ['password'] } });
+
+    if (!user) {
+      return jsonResponse({
+        res,
+        status: STATUS_CODE.UNAUTHORIZED,
+        message: locales('userNotFound', lang as string),
+      });
+    }
+
+    await user.update({ password });
+
+    await otpData.update({ is_used: true, expires_at: moment().toDate() });
+
+    return jsonResponse({
+      res,
+      status: STATUS_CODE.OK,
+      message: locales('updatedSuccessfully', lang as string),
+    });
+
+  } catch (error: any) {
+    return jsonResponse({
+      res,
+      status: STATUS_CODE.SERVER_ERROR,
+      message: error.message,
+    });
+  }
+} 
+
+
 export default {
   register,
   login,
   refreshToken,
   logout,
   verifyAccountOTP,
+  forgotPassword,
+  resetPassword,
 }

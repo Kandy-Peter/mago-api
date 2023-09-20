@@ -52,3 +52,21 @@ export const verifyAccountOTPValidation: RequestHandler = celebrate({
     userId: Joi.string().required().min(15).max(15),
   }),
 });
+
+export const forgotPasswordValidation: RequestHandler = celebrate({
+  [Segments.BODY]: Joi.object().keys({
+    email: Joi.string().email(),
+    phone_number: Joi.string().min(9).max(15),
+  }),
+});
+
+export const resetPasswordValidation: RequestHandler = celebrate({
+  [Segments.BODY]: Joi.object().keys({
+    otp: Joi.string().required().min(5).max(5),
+    password: Joi.string()
+      .required()
+      .min(6)
+      .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{6,}$/),
+    password_confirmation: Joi.string().required().valid(Joi.ref("password")),
+  })
+});

@@ -90,12 +90,13 @@ class AuthHelper {
     }
   }
 
-  static async generateOTP(id: string) {
+  static async generateOTP(id: string, subject: string) {
     try {
       const otp = Math.floor(10000 + Math.random() * 90000);
       const newOTP = await OTP.create({
         user_id: id,
         otp,
+        subject,
         expires_at: moment().add(15, "minutes").toDate(),
       });
       return newOTP.otp;
