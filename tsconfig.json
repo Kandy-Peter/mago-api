@@ -12,7 +12,7 @@
     "skipLibCheck": true,
     "paths": {
       "@/*": ["./src/*"],
-      "@services/*": ["./src/services/*"],
+      "@api/*": ["./src/api/*"],
       "@db/*": ["./src/database/*"],
       "@config/*": ["./src/config/*"],
       "@models": ["./src/database/models/*"],

@@ -18,6 +18,6 @@ router.delete("/logout", authControllers.logout);
 router.post("/refresh-token", refreshTokenValidation, authControllers.refreshToken);
 router.post("/verify-email/:userId", verifyAccountOTPValidation, authControllers.verifyAccountOTP);
 router.post("/forgot-password", forgotPasswordValidation, authControllers.forgotPassword);
-router.post("/reset-password/:userId", resetPasswordValidation, authControllers.resetPassword);
+router.put("/reset-password", resetPasswordValidation, authControllers.resetPassword);
 
 export default router;

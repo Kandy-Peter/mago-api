@@ -8,10 +8,10 @@ const isTest = NODE_ENV === 'test';
 
 sgMail.setApiKey(SENDGRID_API_KEY as string);
 
-// /**
-//  * @author Kandy
-//  * @param {Object} msg
-//  */
+/**
+ * @author Kandy
+ * @param {Object} msg
+ */
 
 const sendMail = async (msg: MailDataRequired) => {
   const defaultMsg = {

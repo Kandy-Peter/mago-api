@@ -5,7 +5,7 @@ import bodyParser from 'body-parser';
 import * as morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import figlet from 'figlet';
-import router from './service';
+import router from './api';
 
 import logger, { stream } from './config/logger';
 const app = express();

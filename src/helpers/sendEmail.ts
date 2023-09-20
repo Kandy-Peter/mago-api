@@ -1,5 +1,6 @@
 import sendGrid from "../config/sendgrid";
 import emailMessage from "../constants/emailTemplate";
+import logger from "../config/logger";
 
 const MAGO_SENDER = process.env.MAGO_SENDER as string;
 
@@ -31,11 +32,9 @@ const sendEmail = async ({
       }),
     };
 
-    console.log(msg)
-
     return sendGrid(msg);
   } catch (error) {
-    console.log(error);
+    logger.error(error);
   }
 };
 

@@ -117,7 +117,6 @@ const register = async (req: Request, res: Response) => {
 const login = async (req: Request, res: Response) => {
   const { lang = 'en' } = req.headers;
   const { email, password } = req.body;
-  console.log(req.body)
 
   try {
     let user = await User.findOne({ where: { email },
@@ -368,7 +367,7 @@ const forgotPassword = async (req: Request, res: Response) => {
 
 const resetPassword = async (req: Request, res: Response) => {
   const { lang = 'en' } = req.headers;
-  const { otp, password, confirm_password } = req.body;
+  const { otp, password, password_confirmation } = req.body;
 
   try {
     const otpData = await OTP.findOne({ where: { otp, subject: "reset_password" } });
@@ -389,7 +388,7 @@ const resetPassword = async (req: Request, res: Response) => {
       });
     }
 
-    if (password !== confirm_password) {
+    if (password !== password_confirmation) {
       return jsonResponse({
         res,
         status: STATUS_CODE.BAD_REQUEST,
@@ -425,7 +424,6 @@ const resetPassword = async (req: Request, res: Response) => {
     });
   }
 } 
-
 
 export default {
   register,
